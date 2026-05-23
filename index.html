@@ -1538,37 +1538,32 @@ window.logoutGoogle = async function () {
 
 /* SAVE SEASON */
 window.saveSeason = async function () {
-  alert("saveSeason jalan");
-  const user = auth.currentUser;
-
-  if (!user) {
-    alert("Login dulu");
-    return;
-  }
-
-  const season = document.getElementById("seasonNumInput").value;
-  const start = document.getElementById("seasonStartInput").value;
-  const duration = document.getElementById("seasonDurInput").value;
-
-  if (!season || !start || !duration) {
-    alert("Semua field wajib diisi");
-    return;
-  }
 
   try {
+
+    alert("saveSeason jalan");
+
+    const user = auth.currentUser;
+
+    if (!user) {
+      alert("Belum login");
+      return;
+    }
+
     await setDoc(doc(db, "users", user.uid), {
-      season,
-      start,
-      duration,
-      uid: user.uid,
+      season: document.getElementById("seasonNumInput").value,
+      start: document.getElementById("seasonStartInput").value,
+      duration: document.getElementById("seasonDurInput").value,
       updatedAt: Date.now()
     });
 
-    alert("Season tersimpan");
+    alert("Data tersimpan");
 
   } catch (e) {
+
+    alert("ERROR: " + e.message);
     console.error(e);
-    alert("Gagal simpan: " + e.message);
+
   }
 };
 /* STATE CONTROL (INI INTI) */
