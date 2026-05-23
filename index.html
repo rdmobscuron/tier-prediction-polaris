@@ -1419,9 +1419,6 @@ document.addEventListener('DOMContentLoaded', function(){
   purgeBin();
 });
 </script>
-
-<div class="season-overlay" id="seasonOverlay" style="display:none">
-  <div class="season-box">
 <div class="season-overlay" id="seasonOverlay" style="display:none">
   <div class="season-box">
 
@@ -1434,6 +1431,7 @@ document.addEventListener('DOMContentLoaded', function(){
       Status: Belum login
     </div>
 
+    <!-- FORM -->
     <div class="season-number-wrap">
       <div class="season-eyebrow">Mobile Legends</div>
       <div id="seasonNumDisplay" class="season-number-placeholder">--</div>
@@ -1444,7 +1442,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
     <div class="season-field">
       <label>Season Ke-</label>
-      <input type="text" id="seasonNumInput" inputmode="numeric" placeholder="cth: 40">
+      <input type="text" id="seasonNumInput" inputmode="numeric">
     </div>
 
     <div class="season-field">
@@ -1454,7 +1452,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
     <div class="season-field">
       <label>Durasi Season (hari)</label>
-      <input type="text" id="seasonDurInput" inputmode="numeric" placeholder="cth: 60">
+      <input type="text" id="seasonDurInput" inputmode="numeric">
     </div>
 
     <p style="font-size:.68rem;color:var(--sub);text-align:center;margin-top:10px;">
@@ -1465,111 +1463,5 @@ document.addEventListener('DOMContentLoaded', function(){
 
   </div>
 </div>
-</div>
-  </div>
-    <div class="season-number-wrap">
-      <div class="season-eyebrow">Mobile Legends</div>
-      <div id="seasonNumDisplay" class="season-number-placeholder">--</div>
-      <div class="season-label-under">Season</div>
-    </div>
-    <div class="season-divider"></div>
-    <div class="season-field">
-      <label>Season Ke-</label>
-      <input type="text" inputmode="numeric" id="seasonNumInput" placeholder="cth: 40" oninput="previewSeasonNum(this)">
-    </div>
-    <div class="season-field">
-      <label>Tanggal Mulai Season</label>
-      <input type="date" id="seasonStartInput">
-    </div>
-    <div class="season-field">
-      <label>Durasi Season (hari)</label>
-      <input type="text" inputmode="numeric" id="seasonDurInput" placeholder="cth: 60">
-    </div>
-    <p style="font-size:.68rem;color:var(--sub);text-align:center;margin-top:10px;line-height:1.5">Input sekali &mdash; otomatis dihitung setiap hari<br><span style="color:var(--amber)">Wajib diisi untuk menggunakan sistem</span></p>
- <button class="btn-season" onclick="saveSeason()">&#9889; Mulai Season</button>
-  </div>
-</div>
-<script type="module">
-
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged }
-from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-
-import { getFirestore, doc, setDoc, getDoc }
-from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
-
-/* CONFIG */
-const firebaseConfig = {
-  apiKey: "ISI_API_KEY",
-  authDomain: "tier-prediction-polaris-2.firebaseapp.com",
-  projectId: "tier-prediction-polaris-2",
-  storageBucket: "tier-prediction-polaris-2.appspot.com",
-  messagingSenderId: "393588323403",
-  appId: "1:393588323403:web:ef2be9e4b3569797e4c9ce"
-};
-
-/* INIT */
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const provider = new GoogleAuthProvider();
-
-console.log("Firebase Connected");
-window.loginGoogle = async function () {
-  try {
-    const provider = new GoogleAuthProvider();
-    const result = await signInWithPopup(auth, provider);
-
-    document.getElementById("loginStatus").innerText =
-      "Login sebagai: " + result.user.displayName;
-
-    // sembunyikan tombol login
-    document.getElementById("loginSection").style.display = "none";
-
-    console.log("Login sukses", result.user);
-
-  } catch (e) {
-    alert("Login gagal: " + e.message);
-  }
-};
-
-window.saveSeason = async function () {
-
-  const user = auth.currentUser;
-
-  if (!user) {
-    alert("Wajib login dulu sebelum mulai season");
-    return;
-  }
-
-  const data = {
-    season: document.getElementById("seasonNumInput").value,
-    start: document.getElementById("seasonStartInput").value,
-    duration: document.getElementById("seasonDurInput").value,
-    uid: user.uid,
-    updatedAt: Date.now()
-  };
-
-  await setDoc(doc(db, "users", user.uid), data);
-
-  alert("Season tersimpan");
-};
-
-/* LOAD DATA SAAT LOGIN */
-onAuthStateChanged(auth, async (user) => {
-
-  if (user) {
-    const snap = await getDoc(doc(db, "users", user.uid));
-
-    if (snap.exists()) {
-      console.log("Data user:", snap.data());
-    }
-  }
-
-});
-
-</script>
 </body>
 </html>
