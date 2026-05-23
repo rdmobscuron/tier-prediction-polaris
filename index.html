@@ -1497,12 +1497,10 @@ apiKey: "AIzaSyA1KvMcZ1Tm4aR2PTqIAk2seMcTs4sbX1s",
   appId: "1:393588323403:web:ef2be9e4b3569797e4c9ce",
   measurementId: "G-MF3KLDEPBL"
 };
-
-/* INIT */
+  
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const provider = new GoogleAuthProvider();
+const analytics = getAnalytics(app);
 
 console.log("Firebase Connected");
 
