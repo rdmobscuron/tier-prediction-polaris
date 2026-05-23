@@ -1519,6 +1519,13 @@ window.loginGoogle = async function () {
 
     alert("Login berhasil");
 
+    document.getElementById("seasonNumInput").disabled = false;
+document.getElementById("seasonStartInput").disabled = false;
+document.getElementById("seasonDurInput").disabled = false;
+document.getElementById("saveBtn").disabled = false;
+
+alert("Input unlocked");
+
   } catch (e) {
     alert("Login gagal: " + e.message);
   }
