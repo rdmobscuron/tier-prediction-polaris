@@ -1507,12 +1507,23 @@ console.log("Firebase Connected");
 /* LOGIN */
 window.loginGoogle = async function () {
   try {
-    await signInWithPopup(auth, provider);
+    const result = await signInWithPopup(auth, provider);
+
+    document.getElementById("loginStatus").innerText =
+      "Login: " + result.user.displayName;
+
+    document.getElementById("seasonNumInput").disabled = false;
+    document.getElementById("seasonStartInput").disabled = false;
+    document.getElementById("seasonDurInput").disabled = false;
+    document.getElementById("saveBtn").disabled = false;
+
+    alert("Login berhasil");
+
   } catch (e) {
     alert("Login gagal: " + e.message);
   }
 };
-
+  
 /* LOGOUT */
 window.logoutGoogle = async function () {
   await signOut(auth);
