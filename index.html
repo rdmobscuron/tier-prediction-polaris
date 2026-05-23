@@ -1512,19 +1512,12 @@ window.loginGoogle = async function () {
     document.getElementById("loginStatus").innerText =
       "Login: " + result.user.displayName;
 
-    document.getElementById("seasonNumInput").disabled = false;
-    document.getElementById("seasonStartInput").disabled = false;
-    document.getElementById("seasonDurInput").disabled = false;
-    document.getElementById("saveBtn").disabled = false;
-
-    alert("Login berhasil");
-
-    document.getElementById("seasonNumInput").disabled = false;
+document.getElementById("seasonNumInput").disabled = false;
 document.getElementById("seasonStartInput").disabled = false;
 document.getElementById("seasonDurInput").disabled = false;
 document.getElementById("saveBtn").disabled = false;
 
-alert("Input unlocked");
+alert("Login berhasil");
 
   } catch (e) {
     alert("Login gagal: " + e.message);
@@ -1533,8 +1526,12 @@ alert("Input unlocked");
   
 /* LOGOUT */
 window.logoutGoogle = async function () {
+
   await signOut(auth);
 
+  alert("Logout berhasil");
+
+};
   async function saveSeason(){
 
   var numVal   = document.getElementById('seasonNumInput').value.replace(/[^0-9]/g,'');
