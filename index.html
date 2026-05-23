@@ -1422,6 +1422,51 @@ document.addEventListener('DOMContentLoaded', function(){
 
 <div class="season-overlay" id="seasonOverlay" style="display:none">
   <div class="season-box">
+<div class="season-overlay" id="seasonOverlay" style="display:none">
+  <div class="season-box">
+
+    <!-- LOGIN -->
+    <div id="loginSection" style="text-align:center; margin-bottom:12px;">
+      <button onclick="loginGoogle()">Login Google untuk lanjut</button>
+    </div>
+
+    <div id="loginStatus" style="text-align:center; font-size:0.8rem; color:var(--sub); margin-bottom:12px;">
+      Status: Belum login
+    </div>
+
+    <div class="season-number-wrap">
+      <div class="season-eyebrow">Mobile Legends</div>
+      <div id="seasonNumDisplay" class="season-number-placeholder">--</div>
+      <div class="season-label-under">Season</div>
+    </div>
+
+    <div class="season-divider"></div>
+
+    <div class="season-field">
+      <label>Season Ke-</label>
+      <input type="text" id="seasonNumInput" inputmode="numeric" placeholder="cth: 40">
+    </div>
+
+    <div class="season-field">
+      <label>Tanggal Mulai Season</label>
+      <input type="date" id="seasonStartInput">
+    </div>
+
+    <div class="season-field">
+      <label>Durasi Season (hari)</label>
+      <input type="text" id="seasonDurInput" inputmode="numeric" placeholder="cth: 60">
+    </div>
+
+    <p style="font-size:.68rem;color:var(--sub);text-align:center;margin-top:10px;">
+      Wajib login sebelum menyimpan data
+    </p>
+
+    <button class="btn-season" onclick="saveSeason()">⚡ Mulai Season</button>
+
+  </div>
+</div>
+</div>
+  </div>
     <div class="season-number-wrap">
       <div class="season-eyebrow">Mobile Legends</div>
       <div id="seasonNumDisplay" class="season-number-placeholder">--</div>
@@ -1476,24 +1521,26 @@ window.loginGoogle = async function () {
   try {
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
-    alert("Login sukses: " + result.user.displayName);
+
+    document.getElementById("loginStatus").innerText =
+      "Login sebagai: " + result.user.displayName;
+
+    // sembunyikan tombol login
+    document.getElementById("loginSection").style.display = "none";
+
+    console.log("Login sukses", result.user);
+
   } catch (e) {
     alert("Login gagal: " + e.message);
-    console.error(e);
   }
 };
-/* LOGIN GOOGLE */
-window.loginGoogle = async function () {
-  const result = await signInWithPopup(auth, provider);
-  console.log("Login:", result.user.uid);
-};
 
-/* SAVE SEASON */
 window.saveSeason = async function () {
 
   const user = auth.currentUser;
+
   if (!user) {
-    alert("Login dulu");
+    alert("Wajib login dulu sebelum mulai season");
     return;
   }
 
@@ -1501,12 +1548,13 @@ window.saveSeason = async function () {
     season: document.getElementById("seasonNumInput").value,
     start: document.getElementById("seasonStartInput").value,
     duration: document.getElementById("seasonDurInput").value,
+    uid: user.uid,
     updatedAt: Date.now()
   };
 
   await setDoc(doc(db, "users", user.uid), data);
 
-  console.log("Season saved");
+  alert("Season tersimpan");
 };
 
 /* LOAD DATA SAAT LOGIN */
