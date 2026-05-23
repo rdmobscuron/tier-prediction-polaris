@@ -1419,57 +1419,98 @@ document.addEventListener('DOMContentLoaded', function(){
   purgeBin();
 });
 </script>
-<div class="season-overlay" id="seasonOverlay" style="display:none">
-  <div class="season-box">
+<script type="module">
 
-    <!-- LOGIN -->
-    <div id="loginSection" style="text-align:center; margin-bottom:12px;">
-      <button type="button" onclick="loginGoogle()">
-        Login Google untuk lanjut
-      </button>
-    </div>
+/* =========================
+   IMPORT FIREBASE CDN
+========================= */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
-    <div id="loginStatus" style="text-align:center; font-size:0.8rem; color:var(--sub); margin-bottom:12px;">
-      Status: Belum login
-    </div>
+/* =========================
+   FIREBASE CONFIG
+========================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyA1KvMcZ1Tm4aR2PTqIAk2seMcTs4sbX1s",
+  authDomain: "tier-prediction-polaris-2.firebaseapp.com",
+  projectId: "tier-prediction-polaris-2",
+  storageBucket: "tier-prediction-polaris-2.appspot.com",
+  messagingSenderId: "393588323403",
+  appId: "1:393588323403:web:ef2be9e4b3569797e4c9ce",
+  measurementId: "G-MF3KLDEPBL"
+};
 
-    <!-- FORM -->
-    <div class="season-number-wrap">
-      <div class="season-eyebrow">Mobile Legends</div>
-      <div id="seasonNumDisplay" class="season-number-placeholder">--</div>
-      <div class="season-label-under">Season</div>
-    </div>
+/* =========================
+   INIT APP
+========================= */
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
 
-    <div class="season-divider"></div>
+console.log("Firebase Connected");
 
-    <div class="season-field">
-      <label>Season Ke-</label>
-      <input type="text" id="seasonNumInput" inputmode="numeric" disabled>
-    </div>
+/* =========================
+   LOGIN GOOGLE
+========================= */
+window.loginGoogle = async function () {
+  try {
+    const result = await signInWithPopup(auth, provider);
 
-    <div class="season-field">
-      <label>Tanggal Mulai Season</label>
-      <input type="date" id="seasonStartInput" disabled>
-    </div>
+    const user = result.user;
 
-    <div class="season-field">
-      <label>Durasi Season (hari)</label>
-      <input type="text" id="seasonDurInput" inputmode="numeric" disabled>
-    </div>
+    console.log("LOGIN SUCCESS:", user);
 
-    <p style="font-size:.68rem;color:var(--sub);text-align:center;margin-top:10px;">
-      Login diperlukan sebelum menyimpan data
-    </p>
+    // UI update (kalau kamu punya elemen ini)
+    const status = document.getElementById("loginStatus");
+    if (status) {
+      status.innerText = "Login: " + user.displayName;
+    }
 
-    <button id="saveBtn"
-            class="btn-season"
-            type="button"
-            onclick="saveSeason()"
-            disabled>
-      ⚡ Mulai Season
-    </button>
+    const loginBtn = document.getElementById("loginSection");
+    if (loginBtn) {
+      loginBtn.style.display = "none";
+    }
 
-  </div>
-</div>
+    const saveBtn = document.getElementById("saveBtn");
+    if (saveBtn) {
+      saveBtn.disabled = false;
+    }
+
+  } catch (e) {
+    console.error("LOGIN ERROR:", e.code, e.message);
+    alert("Login gagal: " + e.message);
+  }
+};
+
+/* =========================
+   SAVE SEASON (PROTECTED)
+========================= */
+window.saveSeason = async function () {
+
+  const user = auth.currentUser;
+
+  if (!user) {
+    alert("Login dulu sebelum submit");
+    return;
+  }
+
+  const data = {
+    season: document.getElementById("seasonNumInput").value,
+    start: document.getElementById("seasonStartInput").value,
+    duration: document.getElementById("seasonDurInput").value,
+    uid: user.uid,
+    updatedAt: Date.now()
+  };
+
+  await setDoc(doc(db, "users", user.uid), data);
+
+  alert("Data season tersimpan");
+};
+
+</script>
 </body>
 </html>
