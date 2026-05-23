@@ -1424,7 +1424,9 @@ document.addEventListener('DOMContentLoaded', function(){
 
     <!-- LOGIN -->
     <div id="loginSection" style="text-align:center; margin-bottom:12px;">
-      <button type="button" onclick="loginGoogle()">Login Google untuk lanjut</button>
+      <button type="button" onclick="loginGoogle()">
+        Login Google untuk lanjut
+      </button>
     </div>
 
     <div id="loginStatus" style="text-align:center; font-size:0.8rem; color:var(--sub); margin-bottom:12px;">
@@ -1463,55 +1465,7 @@ document.addEventListener('DOMContentLoaded', function(){
     </div>
 
     <p style="font-size:.68rem;color:var(--sub);text-align:center;margin-top:10px;">
-      Login wajib sebelum menyimpan data
-    </p>
-
-    <button id="saveBtn" class="btn-season" onclick="saveSeason()" disabled>
-      ⚡ Mulai Season
-    </button>
-
-  </div>
-</div>
-<div class="season-overlay" id="seasonOverlay" style="display:none">
-  <div class="season-box">
-
-    <!-- LOGIN -->
-    <div id="loginSection" style="text-align:center; margin-bottom:12px;">
-      <button type="button" onclick="loginGoogle()">
-        Login Google untuk lanjut
-      </button>
-    </div>
-
-    <div id="loginStatus" style="text-align:center; font-size:0.8rem; color:var(--sub); margin-bottom:12px;">
-      Status: Belum login
-    </div>
-
-    <!-- FORM -->
-    <div class="season-number-wrap">
-      <div class="season-eyebrow">Mobile Legends</div>
-      <div id="seasonNumDisplay" class="season-number-placeholder">--</div>
-      <div class="season-label-under">Season</div>
-    </div>
-
-    <div class="season-divider"></div>
-
-    <div class="season-field">
-      <label>Season Ke-</label>
-      <input type="text" id="seasonNumInput" inputmode="numeric" disabled>
-    </div>
-
-    <div class="season-field">
-      <label>Tanggal Mulai Season</label>
-      <input type="date" id="seasonStartInput" disabled>
-    </div>
-
-    <div class="season-field">
-      <label>Durasi Season (hari)</label>
-      <input type="text" id="seasonDurInput" inputmode="numeric" disabled>
-    </div>
-
-    <p style="font-size:.68rem;color:var(--sub);text-align:center;margin-top:10px;">
-      Login diperlukan sebelum menyimpan data
+      Wajib login sebelum menyimpan data
     </p>
 
     <button id="saveBtn"
@@ -1524,5 +1478,108 @@ document.addEventListener('DOMContentLoaded', function(){
 
   </div>
 </div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut }
+from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import { getFirestore, doc, setDoc }
+from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+/* CONFIG */
+const firebaseConfig = {
+  apiKey: "ISI_API_KEY",
+  authDomain: "tier-prediction-polaris-2.firebaseapp.com",
+  projectId: "tier-prediction-polaris-2",
+  storageBucket: "tier-prediction-polaris-2.appspot.com",
+  messagingSenderId: "393588323403",
+  appId: "1:393588323403:web:ef2be9e4b3569797e4c9ce"
+};
+
+/* INIT */
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+
+console.log("Firebase Connected");
+
+/* LOGIN */
+window.loginGoogle = async function () {
+  try {
+    await signInWithPopup(auth, provider);
+  } catch (e) {
+    alert("Login gagal: " + e.message);
+  }
+};
+
+/* LOGOUT */
+window.logoutGoogle = async function () {
+  await signOut(auth);
+};
+
+/* SAVE SEASON */
+window.saveSeason = async function () {
+
+  const user = auth.currentUser;
+
+  if (!user) {
+    alert("Login dulu sebelum submit");
+    return;
+  }
+
+  await setDoc(doc(db, "users", user.uid), {
+    season: document.getElementById("seasonNumInput").value,
+    start: document.getElementById("seasonStartInput").value,
+    duration: document.getElementById("seasonDurInput").value,
+    uid: user.uid,
+    updatedAt: Date.now()
+  });
+
+  alert("Data tersimpan");
+};
+
+/* STATE CONTROL (INI INTI) */
+onAuthStateChanged(auth, (user) => {
+
+  const loginSection = document.getElementById("loginSection");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const status = document.getElementById("loginStatus");
+  const saveBtn = document.getElementById("saveBtn");
+
+  const inputs = [
+    "seasonNumInput",
+    "seasonStartInput",
+    "seasonDurInput"
+  ];
+
+  if (user) {
+
+    status.innerText = "Login: " + user.displayName;
+
+    loginSection.style.display = "none";
+    logoutBtn.style.display = "inline-block";
+    saveBtn.disabled = false;
+
+    inputs.forEach(id => {
+      document.getElementById(id).disabled = false;
+    });
+
+  } else {
+
+    status.innerText = "Status: Belum login";
+
+    loginSection.style.display = "block";
+    logoutBtn.style.display = "none";
+    saveBtn.disabled = true;
+
+    inputs.forEach(id => {
+      document.getElementById(id).disabled = true;
+    });
+  }
+});
+
+</script>
 </body>
 </html>
