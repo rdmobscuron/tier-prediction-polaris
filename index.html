@@ -1424,7 +1424,9 @@ document.addEventListener('DOMContentLoaded', function(){
 
     <!-- LOGIN -->
     <div id="loginSection" style="text-align:center; margin-bottom:12px;">
-      <button onclick="loginGoogle()">Login Google untuk lanjut</button>
+      <button type="button" onclick="loginGoogle()">
+        Login Google untuk lanjut
+      </button>
     </div>
 
     <div id="loginStatus" style="text-align:center; font-size:0.8rem; color:var(--sub); margin-bottom:12px;">
@@ -1442,24 +1444,28 @@ document.addEventListener('DOMContentLoaded', function(){
 
     <div class="season-field">
       <label>Season Ke-</label>
-      <input type="text" id="seasonNumInput" inputmode="numeric">
+      <input type="text" id="seasonNumInput" inputmode="numeric" disabled>
     </div>
 
     <div class="season-field">
       <label>Tanggal Mulai Season</label>
-      <input type="date" id="seasonStartInput">
+      <input type="date" id="seasonStartInput" disabled>
     </div>
 
     <div class="season-field">
       <label>Durasi Season (hari)</label>
-      <input type="text" id="seasonDurInput" inputmode="numeric">
+      <input type="text" id="seasonDurInput" inputmode="numeric" disabled>
     </div>
 
     <p style="font-size:.68rem;color:var(--sub);text-align:center;margin-top:10px;">
-      Wajib login sebelum menyimpan data
+      Login diperlukan sebelum menyimpan data
     </p>
 
-    <button id="saveBtn" class="btn-season" onclick="saveSeason()" disabled>
+    <button id="saveBtn"
+            class="btn-season"
+            type="button"
+            onclick="saveSeason()"
+            disabled>
       ⚡ Mulai Season
     </button>
 
