@@ -1472,95 +1472,57 @@ document.addEventListener('DOMContentLoaded', function(){
 
   </div>
 </div>
+<div class="season-overlay" id="seasonOverlay" style="display:none">
+  <div class="season-box">
 
-<script type="module">
+    <!-- LOGIN -->
+    <div id="loginSection" style="text-align:center; margin-bottom:12px;">
+      <button type="button" onclick="loginGoogle()">
+        Login Google untuk lanjut
+      </button>
+    </div>
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+    <div id="loginStatus" style="text-align:center; font-size:0.8rem; color:var(--sub); margin-bottom:12px;">
+      Status: Belum login
+    </div>
 
-const firebaseConfig = {
-  apiKey: "ISI_API_KEY",
-  authDomain: "tier-prediction-polaris-2.firebaseapp.com",
-  projectId: "tier-prediction-polaris-2",
-  storageBucket: "tier-prediction-polaris-2.appspot.com",
-  messagingSenderId: "393588323403",
-  appId: "1:393588323403:web:ef2be9e4b3569797e4c9ce"
-};
+    <!-- FORM -->
+    <div class="season-number-wrap">
+      <div class="season-eyebrow">Mobile Legends</div>
+      <div id="seasonNumDisplay" class="season-number-placeholder">--</div>
+      <div class="season-label-under">Season</div>
+    </div>
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const provider = new GoogleAuthProvider();
+    <div class="season-divider"></div>
 
-console.log("Firebase Connected");
+    <div class="season-field">
+      <label>Season Ke-</label>
+      <input type="text" id="seasonNumInput" inputmode="numeric" disabled>
+    </div>
 
-window.loginGoogle = async function () {
-  try {
-    const result = await signInWithPopup(auth, provider);
-    console.log("LOGIN SUCCESS:", result.user);
-  } catch (e) {
-    alert("Login gagal: " + e.message);
-  }
-};
+    <div class="season-field">
+      <label>Tanggal Mulai Season</label>
+      <input type="date" id="seasonStartInput" disabled>
+    </div>
 
-window.logoutGoogle = async function () {
-  await signOut(auth);
-};
+    <div class="season-field">
+      <label>Durasi Season (hari)</label>
+      <input type="text" id="seasonDurInput" inputmode="numeric" disabled>
+    </div>
 
-window.saveSeason = async function () {
+    <p style="font-size:.68rem;color:var(--sub);text-align:center;margin-top:10px;">
+      Login diperlukan sebelum menyimpan data
+    </p>
 
-  const user = auth.currentUser;
+    <button id="saveBtn"
+            class="btn-season"
+            type="button"
+            onclick="saveSeason()"
+            disabled>
+      ⚡ Mulai Season
+    </button>
 
-  if (!user) {
-    alert("Login dulu");
-    return;
-  }
-
-  const data = {
-    season: document.getElementById("seasonNumInput").value,
-    start: document.getElementById("seasonStartInput").value,
-    duration: document.getElementById("seasonDurInput").value,
-    uid: user.uid,
-    updatedAt: Date.now()
-  };
-
-  await setDoc(doc(db, "users", user.uid), data);
-
-  alert("Tersimpan");
-};
-
-onAuthStateChanged(auth, (user) => {
-
-  const loginSection = document.getElementById("loginSection");
-  const logoutBtn = document.getElementById("logoutBtn");
-  const status = document.getElementById("loginStatus");
-  const saveBtn = document.getElementById("saveBtn");
-
-  const inputs = ["seasonNumInput","seasonStartInput","seasonDurInput"];
-
-  if (user) {
-
-    status.innerText = "Login: " + user.displayName;
-
-    loginSection.style.display = "none";
-    logoutBtn.style.display = "inline-block";
-    saveBtn.disabled = false;
-
-    inputs.forEach(id => document.getElementById(id).disabled = false);
-
-  } else {
-
-    status.innerText = "Status: Belum login";
-
-    loginSection.style.display = "block";
-    logoutBtn.style.display = "none";
-    saveBtn.disabled = true;
-
-    inputs.forEach(id => document.getElementById(id).disabled = true);
-  }
-});
-
-</script>
+  </div>
+</div>
 </body>
 </html>
