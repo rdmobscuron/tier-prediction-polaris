@@ -1534,38 +1534,59 @@ alert("Input unlocked");
 /* LOGOUT */
 window.logoutGoogle = async function () {
   await signOut(auth);
-};
 
-/* SAVE SEASON */
-window.saveSeason = async function () {
+  async function saveSeason(){
 
-  try {
+  var numVal   = document.getElementById('seasonNumInput').value.replace(/[^0-9]/g,'');
+  var startVal = document.getElementById('seasonStartInput').value;
+  var durVal   = document.getElementById('seasonDurInput').value.replace(/[^0-9]/g,'');
 
-    alert("saveSeason jalan");
+  if(!numVal || !startVal || !durVal || parseInt(durVal) < 1){
+    showToast('Isi semua field: season ke-, tanggal mulai, dan durasi.','warn');
+    return;
+  }
+
+  var cfg = {
+    num: parseInt(numVal),
+    start: startVal,
+    dur: parseInt(durVal)
+  };
+
+  try{
+    localStorage.setItem(SEASON_KEY, JSON.stringify(cfg));
+  }catch(e){}
+
+  /* SIMPAN KE FIRESTORE */
+  try{
 
     const user = auth.currentUser;
 
-    if (!user) {
-      alert("Belum login");
-      return;
+    if(user){
+
+      await setDoc(
+        doc(db, "users", user.uid),
+        {
+          seasonConfig: cfg,
+          updatedAt: Date.now()
+        },
+        { merge:true }
+      );
+
     }
 
-    await setDoc(doc(db, "users", user.uid), {
-      season: document.getElementById("seasonNumInput").value,
-      start: document.getElementById("seasonStartInput").value,
-      duration: document.getElementById("seasonDurInput").value,
-      updatedAt: Date.now()
-    });
+  }catch(err){
 
-    alert("Data tersimpan");
-
-  } catch (e) {
-
-    alert("ERROR: " + e.message);
-    console.error(e);
+    console.error(err);
 
   }
-};
+
+  document.getElementById('seasonOverlay').style.display = 'none';
+
+  applySeason(cfg);
+
+  showToast('Season '+numVal+' dikonfigurasi.','ok');
+}
+  
 /* STATE CONTROL (INI INTI) */
 onAuthStateChanged(auth, (user) => {
 
@@ -1588,9 +1609,11 @@ onAuthStateChanged(auth, (user) => {
     logoutBtn.style.display = "inline-block";
     saveBtn.disabled = false;
 
-    inputs.forEach(id => {
-      document.getElementById("saveBtn").disabled = false;
-    });
+ inputs.forEach(id => {
+  document.getElementById(id).disabled = false;
+});
+
+document.getElementById("saveBtn").disabled = false;
 
   } else {
 
