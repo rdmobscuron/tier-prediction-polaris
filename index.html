@@ -1444,26 +1444,35 @@ document.addEventListener('DOMContentLoaded', function(){
 <button class="btn-season" onclick="saveSeason()">⚡ Mulai Season</button>
 </div>
 </div>
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+<script type="module">
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+
+import { getAuth, GoogleAuthProvider, signInWithPopup }
+from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+import { getFirestore, doc, setDoc, getDoc }
+from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+/* 1. HARUS ADA DULU */
 const firebaseConfig = {
-  apiKey: "AIzaSyA1KvMcZ1Tm4aR2PTqIAk2seMcTs4sbX1s",
-  authDomain: "tier-prediction-polaris-2.firebaseapp.com",
-  projectId: "tier-prediction-polaris-2",
-  storageBucket: "tier-prediction-polaris-2.firebasestorage.app",
-  messagingSenderId: "393588323403",
-  appId: "1:393588323403:web:ef2be9e4b3569797e4c9ce",
-  measurementId: "G-MF3KLDEPBL"
+  apiKey: "...",
+  authDomain: "...",
+  projectId: "...",
+  storageBucket: "...",
+  messagingSenderId: "...",
+  appId: "..."
 };
 
-// Initialize Firebase
+/* 2. BARU DIPAKAI */
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+console.log("Firebase Connected");
+
+</script>
 </body>
 </html>
