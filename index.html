@@ -307,6 +307,9 @@ header h1{filter:drop-shadow(0 0 18px rgba(245,200,66,.4))}
   <p>Mobile Legends &middot; Competitive Progression Analytics</p>
   <p style="margin-top:8px;font-size:.6rem;letter-spacing:.2em;color:rgba(240,192,64,.5);text-transform:uppercase">v02.12.01 &nbsp;&mdash;&nbsp; Polaris</p>
 </header>
+  <div style="text-align:center; margin: 20px 0;">
+  <button onclick="loginGoogle()">Login Google</button>
+</div>
 <div class="wrap">
 
   <div class="card">
@@ -1440,21 +1443,20 @@ document.addEventListener('DOMContentLoaded', function(){
     <p style="font-size:.68rem;color:var(--sub);text-align:center;margin-top:10px;line-height:1.5">Input sekali &mdash; otomatis dihitung setiap hari<br><span style="color:var(--amber)">Wajib diisi untuk menggunakan sistem</span></p>
   </div>
 </div>
-  <script type="module">
+<script type="module">
 
-/* ── FIREBASE IMPORT ── */
 import { initializeApp }
 from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
 
-import { getAuth, GoogleAuthProvider, signInWithPopup }
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged }
 from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
 import { getFirestore, doc, setDoc, getDoc }
 from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
-/* ── CONFIG (WAJIB DI ATAS) ── */
+/* CONFIG */
 const firebaseConfig = {
-  apiKey: "ISI_API_KEY_KAMU",
+  apiKey: "ISI_API_KEY",
   authDomain: "tier-prediction-polaris-2.firebaseapp.com",
   projectId: "tier-prediction-polaris-2",
   storageBucket: "tier-prediction-polaris-2.appspot.com",
@@ -1462,40 +1464,53 @@ const firebaseConfig = {
   appId: "1:393588323403:web:ef2be9e4b3569797e4c9ce"
 };
 
-/* ── INIT FIREBASE ── */
+/* INIT */
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-
-/* ── TEST ── */
-console.log("Firebase Connected");
-
-/* ── GOOGLE LOGIN ── */
 const provider = new GoogleAuthProvider();
 
+console.log("Firebase Connected");
+
+/* LOGIN GOOGLE */
 window.loginGoogle = async function () {
   const result = await signInWithPopup(auth, provider);
-  console.log("Login sukses:", result.user.uid);
+  console.log("Login:", result.user.uid);
 };
 
-/* ── SAVE DATA CONTOH ── */
-window.saveProgress = async function (data) {
-  const uid = auth.currentUser.uid;
+/* SAVE SEASON */
+window.saveSeason = async function () {
 
-  await setDoc(doc(db, "users", uid), data);
-  console.log("Data tersimpan");
-};
-
-/* ── LOAD DATA ── */
-window.loadProgress = async function () {
-  const uid = auth.currentUser.uid;
-
-  const snap = await getDoc(doc(db, "users", uid));
-
-  if (snap.exists()) {
-    console.log("Data:", snap.data());
+  const user = auth.currentUser;
+  if (!user) {
+    alert("Login dulu");
+    return;
   }
+
+  const data = {
+    season: document.getElementById("seasonNumInput").value,
+    start: document.getElementById("seasonStartInput").value,
+    duration: document.getElementById("seasonDurInput").value,
+    updatedAt: Date.now()
+  };
+
+  await setDoc(doc(db, "users", user.uid), data);
+
+  console.log("Season saved");
 };
+
+/* LOAD DATA SAAT LOGIN */
+onAuthStateChanged(auth, async (user) => {
+
+  if (user) {
+    const snap = await getDoc(doc(db, "users", user.uid));
+
+    if (snap.exists()) {
+      console.log("Data user:", snap.data());
+    }
+  }
+
+});
 
 </script>
 </body>
