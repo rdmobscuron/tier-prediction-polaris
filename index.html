@@ -295,16 +295,50 @@ header h1{filter:drop-shadow(0 0 18px rgba(245,200,66,.4))}
 .season-progress-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--gold2),var(--gold));transition:width .6s ease}
 
 .auth-loading{font-family:'Orbitron',monospace;font-size:.72.8rem;letter-spacing:.2em;color:var(--sub);margin-top:14px}
-</style></head>
+
+/* Auth */
+.auth-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
+.auth-box{background:linear-gradient(160deg,#0f1520,#0b1019);border:1px solid rgba(212,168,67,.3);border-radius:18px;padding:36px 24px;max-width:320px;width:100%;text-align:center;box-shadow:0 0 60px rgba(212,168,67,.08)}
+.auth-box h2{font-family:'Orbitron',monospace;font-size:1rem;letter-spacing:.15em;color:var(--gold);margin-bottom:8px}
+.auth-box p{font-size:.78rem;color:var(--sub);margin-bottom:28px;line-height:1.6}
+.btn-google{width:100%;padding:13px;border:1px solid rgba(212,168,67,.3);border-radius:10px;background:rgba(212,168,67,.08);color:var(--gold);font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:background .2s}
+.btn-google:hover{background:rgba(212,168,67,.15)}
+.btn-google svg{width:20px;height:20px;flex-shrink:0}
+.auth-loading{font-family:'Orbitron',monospace;font-size:.65rem;letter-spacing:.2em;color:var(--sub);margin-top:14px}
+.user-bar{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--s2);border-bottom:1px solid var(--bdr)}
+.user-bar img{width:28px;height:28px;border-radius:50%;border:1px solid var(--gold2)}
+.user-bar-name{font-size:.78rem;font-weight:600;color:var(--txt);flex:1}
+.btn-signout{font-size:.65rem;color:var(--sub);background:none;border:1px solid var(--bdr);border-radius:6px;padding:3px 9px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:600}
+.btn-signout:hover{color:var(--amber);border-color:var(--amber)}
+</style>  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+</head>
 <body>
 
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-box">
+    <h2>Tier Prediction</h2>
+    <p>Login untuk menyimpan data season dan log secara online — akses dari device manapun.</p>
+    <button class="btn-google" onclick="signInGoogle()">
+      <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.2l6.7-6.7C35.7 2.5 30.2 0 24 0 14.8 0 6.9 5.4 3 13.3l7.8 6c1.8-5.4 6.8-9.8 13.2-9.8z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17z"/><path fill="#FBBC05" d="M10.8 28.6A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.8-4.6L2.5 13.3A24 24 0 0 0 0 24c0 3.8.9 7.4 2.5 10.6l8.3-6z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.5-5.8c-2 1.4-4.6 2.2-7.7 2.2-6.4 0-11.8-4.3-13.7-10.1l-8 6.2C6.8 42.5 14.8 48 24 48z"/></svg>
+      Masuk dengan Google
+    </button>
+    <div class="auth-loading" id="authLoading" style="display:none">Menghubungkan...</div>
+  </div>
+</div>
+<div class="user-bar" id="userBar" style="display:none">
+  <img id="userPhoto" src="" alt="">
+  <span class="user-bar-name" id="userName"></span>
+  <button class="btn-signout" onclick="signOut()">Keluar</button>
+</div>
 <header>
   <div style="display:flex;align-items:baseline;justify-content:center;gap:12px;flex-wrap:wrap">
     <h1>Tier Prediction</h1>
     <span id="headerSeason" style="font-family:'Orbitron',monospace;font-size:clamp(1.1rem,4vw,1.9rem);font-weight:900;letter-spacing:.12em;color:rgba(212,168,67,.5);display:none">Season <span id="headerSeasonNum">--</span></span>
   </div>
   <p>Mobile Legends &middot; Competitive Progression Analytics</p>
-  <p style="margin-top:8px;font-size:.6rem;letter-spacing:.2em;color:rgba(240,192,64,.5);text-transform:uppercase">v02.12.01 &nbsp;&mdash;&nbsp; Polaris</p>
+  <p style="margin-top:8px;font-size:.6rem;letter-spacing:.2em;color:rgba(240,192,64,.5);text-transform:uppercase">v02.13.00 &nbsp;&mdash;&nbsp; Polaris</p>
 </header>
 <div class="wrap">
 
@@ -381,7 +415,7 @@ header h1{filter:drop-shadow(0 0 18px rgba(245,200,66,.4))}
       Net Star = Total Match x (2 x WR - 1) &nbsp;|&nbsp; Break-even WR = 50% &nbsp;|&nbsp; WR &lt; 50% = bintang turun setiap match
     </div>
     <div class="err" id="errMsg">Semua field wajib diisi dengan angka valid.</div>
-    <button class="btn" id="btnCalc" onclick="calc()">HITUNG PREDIKSI</button>
+    <button class="btn" id="btnCalc" onclick="calc()" disabled style="opacity:.4;cursor:not-allowed">HITUNG PREDIKSI</button>
   </div>
 
   <div class="card full" id="dashCard" style="display:none">
@@ -478,6 +512,66 @@ header h1{filter:drop-shadow(0 0 18px rgba(245,200,66,.4))}
 
 
 /* ═══════════════════════════════════════
+   FIREBASE — Auth & Cloud Storage
+═══════════════════════════════════════ */
+var firebaseConfig = {
+  apiKey: "AIzaSyA1KvMcZ1Tm4aR2PTqIAk2seMcTs4sbX1s",
+  authDomain: "tier-prediction-polaris-2.firebaseapp.com",
+  databaseURL: "https://tier-prediction-polaris-2-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "tier-prediction-polaris-2",
+  storageBucket: "tier-prediction-polaris-2.firebasestorage.app",
+  messagingSenderId: "393588323403",
+  appId: "1:393588323403:web:ef2be9e4b3569797e4c9ce",
+  measurementId: "G-MF3KLDEPBL"
+};
+var db = null;
+var auth = null;
+var currentUser = null;
+
+function signInGoogle(){
+  if(!auth){ showToast('Firebase belum siap, coba lagi.','warn'); return; }
+  document.getElementById('authLoading').style.display = '';
+  var provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithRedirect(provider);
+}
+function signOut(){
+  if(auth) auth.signOut();
+}
+
+/* Cloud save/load */
+function userDoc(){
+  return db.collection('users').doc(currentUser.uid);
+}
+function cloudSave(key, data){
+  if(!currentUser || !db) return;
+  var obj = {}; obj[key] = JSON.stringify(data);
+  userDoc().set(obj, {merge:true}).catch(function(e){ console.warn('cloudSave:', e); });
+}
+function cloudLoad(){
+  if(!currentUser || !db) return;
+  userDoc().get().then(function(doc){
+    if(!doc.exists) return;
+    var data = doc.data();
+    if(data[LOG_KEY])    localStorage.setItem(LOG_KEY,    data[LOG_KEY]);
+    if(data[ARC_KEY])    localStorage.setItem(ARC_KEY,    data[ARC_KEY]);
+    if(data[BIN_KEY])    localStorage.setItem(BIN_KEY,    data[BIN_KEY]);
+    if(data[SEASON_KEY]) localStorage.setItem(SEASON_KEY, data[SEASON_KEY]);
+    renderLog(); renderArchive(); renderBin(); renderAnalytics(); purgeBin();
+    var sc = loadSeason();
+    if(sc) applySeason(sc);
+    else document.getElementById('seasonOverlay').style.display = 'flex';
+  }).catch(function(e){ console.warn('cloudLoad:', e); });
+}
+
+/* Patch save functions */
+var _origSaveLog = saveLog;
+saveLog = function(a){ _origSaveLog(a); cloudSave(LOG_KEY, a); };
+var _origSaveArchive = saveArchive;
+saveArchive = function(a){ _origSaveArchive(a); cloudSave(ARC_KEY, a); };
+var _origSaveBin = saveBin;
+saveBin = function(a){ _origSaveBin(a); cloudSave(BIN_KEY, a); };
+
+/* ═══════════════════════════════════════
    SEASON TRACKER
    Simpan tanggal start, hitung otomatis
 ═══════════════════════════════════════ */
@@ -509,6 +603,7 @@ function saveSeason(){
   try{ localStorage.setItem(SEASON_KEY, JSON.stringify(cfg)); }catch(e){}
   document.getElementById('seasonOverlay').style.display = 'none';
   applySeason(cfg);
+  cloudSave(SEASON_KEY, cfg);
   showToast('Season '+numVal+' dikonfigurasi.','ok');
 }
 function resetSeason(){
@@ -1405,6 +1500,36 @@ function calc(){
 
 /* ── BOOT ── */
 document.addEventListener('DOMContentLoaded', function(){
+  /* Init Firebase */
+  firebase.initializeApp(firebaseConfig);
+  db   = firebase.firestore();
+  auth = firebase.auth();
+
+  /* Handle redirect result */
+  auth.getRedirectResult().catch(function(e){
+    if(e.code) showToast('Login error: ' + e.code, 'err');
+  });
+
+  /* Auth state */
+  auth.onAuthStateChanged(function(user){
+    if(user){
+      currentUser = user;
+      document.getElementById('authOverlay').style.display = 'none';
+      document.getElementById('userBar').style.display = 'flex';
+      document.getElementById('userPhoto').src = user.photoURL || '';
+      document.getElementById('userName').textContent = user.displayName || user.email;
+      var btn = document.getElementById('btnCalc');
+      if(btn){ btn.disabled=false; btn.style.opacity='1'; btn.style.cursor='pointer'; }
+      cloudLoad();
+    } else {
+      currentUser = null;
+      document.getElementById('authOverlay').style.display = 'flex';
+      document.getElementById('userBar').style.display = 'none';
+      var btn = document.getElementById('btnCalc');
+      if(btn){ btn.disabled=true; btn.style.opacity='.4'; btn.style.cursor='not-allowed'; }
+    }
+  });
+
 
   initTiers();
   initSeason();
