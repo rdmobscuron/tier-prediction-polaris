@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -307,9 +306,6 @@ header h1{filter:drop-shadow(0 0 18px rgba(245,200,66,.4))}
   <p>Mobile Legends &middot; Competitive Progression Analytics</p>
   <p style="margin-top:8px;font-size:.6rem;letter-spacing:.2em;color:rgba(240,192,64,.5);text-transform:uppercase">v02.12.01 &nbsp;&mdash;&nbsp; Polaris</p>
 </header>
-  <div style="text-align:center; margin: 20px 0;">
-  <button onclick="loginGoogle()">Login Google</button>
-</div>
 <div class="wrap">
 
   <div class="card">
@@ -1419,213 +1415,30 @@ document.addEventListener('DOMContentLoaded', function(){
   purgeBin();
 });
 </script>
+
 <div class="season-overlay" id="seasonOverlay" style="display:none">
   <div class="season-box">
-
-    <!-- LOGIN -->
-    <div id="loginSection" style="text-align:center; margin-bottom:12px;">
-      <button type="button" onclick="loginGoogle()">
-        Login Google untuk lanjut
-      </button>
-    </div>
-
-    <div id="loginStatus" style="text-align:center; font-size:0.8rem; color:var(--sub); margin-bottom:12px;">
-      Status: Belum login
-    </div>
-
-    <!-- LOGOUT -->
-    <div style="text-align:center; margin-bottom:12px;">
-      <button id="logoutBtn" onclick="logoutGoogle()" style="display:none;">
-        Logout
-      </button>
-    </div>
-
-    <!-- FORM -->
     <div class="season-number-wrap">
       <div class="season-eyebrow">Mobile Legends</div>
       <div id="seasonNumDisplay" class="season-number-placeholder">--</div>
       <div class="season-label-under">Season</div>
     </div>
-
     <div class="season-divider"></div>
-
     <div class="season-field">
       <label>Season Ke-</label>
-      <input type="text" id="seasonNumInput" inputmode="numeric" disabled>
+      <input type="text" inputmode="numeric" id="seasonNumInput" placeholder="cth: 40" oninput="previewSeasonNum(this)">
     </div>
-
     <div class="season-field">
       <label>Tanggal Mulai Season</label>
-      <input type="date" id="seasonStartInput" disabled>
+      <input type="date" id="seasonStartInput">
     </div>
-
     <div class="season-field">
       <label>Durasi Season (hari)</label>
-      <input type="text" id="seasonDurInput" inputmode="numeric" disabled>
+      <input type="text" inputmode="numeric" id="seasonDurInput" placeholder="cth: 60">
     </div>
-
-    <p style="font-size:.68rem;color:var(--sub);text-align:center;margin-top:10px;">
-      Wajib login sebelum menyimpan data
-    </p>
-
-    <button id="saveBtn"
-            class="btn-season"
-            type="button"
-            onclick="saveSeason()"
-            disabled>
-      ⚡ Mulai Season
-    </button>
-
+    <p style="font-size:.68rem;color:var(--sub);text-align:center;margin-top:10px;line-height:1.5">Input sekali &mdash; otomatis dihitung setiap hari<br><span style="color:var(--amber)">Wajib diisi untuk menggunakan sistem</span></p>
+    <button class="btn-season" onclick="saveSeason()">&#9889; Mulai Season</button>
   </div>
 </div>
-
-<script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut }
-from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-import { getFirestore, doc, setDoc }
-from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
-
-/* FIREBASE CONFIG */
-const firebaseConfig = {
-  apiKey: "AIzaSyA1KvMcZ1Tm4aR2PTqIAk2seMcTs4sbX1s",
-  authDomain: "tier-prediction-polaris-2.firebaseapp.com",
-  projectId: "tier-prediction-polaris-2",
-  storageBucket: "tier-prediction-polaris-2.appspot.com",
-  messagingSenderId: "393588323403",
-  appId: "1:393588323403:web:ef2be9e4b3569797e4c9ce",
-  measurementId: "G-MF3KLDEPBL"
-};
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const provider = new GoogleAuthProvider();
-
-console.log("Firebase Connected");
-  
-/* LOGIN */
-window.loginGoogle = async function () {
-  try {
-    const result = await signInWithPopup(auth, provider);
-
-    document.getElementById("loginStatus").innerText =
-      "Login: " + result.user.displayName;
-
-document.getElementById("seasonNumInput").disabled = false;
-document.getElementById("seasonStartInput").disabled = false;
-document.getElementById("seasonDurInput").disabled = false;
-document.getElementById("saveBtn").disabled = false;
-
-alert("Login berhasil");
-
-  } catch (e) {
-    alert("Login gagal: " + e.message);
-  }
-};
-  
-/* LOGOUT */
-window.logoutGoogle = async function () {
-
-  await signOut(auth);
-
-  alert("Logout berhasil");
-
-};
-  async function saveSeason(){
-
-  var numVal   = document.getElementById('seasonNumInput').value.replace(/[^0-9]/g,'');
-  var startVal = document.getElementById('seasonStartInput').value;
-  var durVal   = document.getElementById('seasonDurInput').value.replace(/[^0-9]/g,'');
-
-  if(!numVal || !startVal || !durVal || parseInt(durVal) < 1){
-    showToast('Isi semua field: season ke-, tanggal mulai, dan durasi.','warn');
-    return;
-  }
-
-  var cfg = {
-    num: parseInt(numVal),
-    start: startVal,
-    dur: parseInt(durVal)
-  };
-
-  try{
-    localStorage.setItem(SEASON_KEY, JSON.stringify(cfg));
-  }catch(e){}
-
-  /* SIMPAN KE FIRESTORE */
-  try{
-
-    const user = auth.currentUser;
-
-    if(user){
-
-      await setDoc(
-        doc(db, "users", user.uid),
-        {
-          seasonConfig: cfg,
-          updatedAt: Date.now()
-        },
-        { merge:true }
-      );
-
-    }
-
-  }catch(err){
-
-    console.error(err);
-
-  }
-
-  document.getElementById('seasonOverlay').style.display = 'none';
-
-  applySeason(cfg);
-
-  showToast('Season '+numVal+' dikonfigurasi.','ok');
-}
-  
-/* STATE CONTROL (INI INTI) */
-onAuthStateChanged(auth, (user) => {
-
-  const loginSection = document.getElementById("loginSection");
-  const logoutBtn = document.getElementById("logoutBtn");
-  const status = document.getElementById("loginStatus");
-  const saveBtn = document.getElementById("saveBtn");
-
-  const inputs = [
-    "seasonNumInput",
-    "seasonStartInput",
-    "seasonDurInput"
-  ];
-
-  if (user) {
-
-    status.innerText = "Login: " + user.displayName;
-
-    loginSection.style.display = "none";
-    logoutBtn.style.display = "inline-block";
-    saveBtn.disabled = false;
-
- inputs.forEach(id => {
-  document.getElementById(id).disabled = false;
-});
-
-document.getElementById("saveBtn").disabled = false;
-
-  } else {
-
-    status.innerText = "Status: Belum login";
-
-    loginSection.style.display = "block";
-    logoutBtn.style.display = "none";
-    saveBtn.disabled = true;
-
-    inputs.forEach(id => {
-      document.getElementById(id).disabled = true;
-    });
-  }
-});
-
-</script>
 </body>
 </html>
