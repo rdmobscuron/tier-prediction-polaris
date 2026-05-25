@@ -532,10 +532,21 @@ function signInGoogle(){
   if(!auth){ showToast('Firebase belum siap, coba lagi.','warn'); return; }
   document.getElementById('authLoading').style.display = '';
   var provider = new firebase.auth.GoogleAuthProvider();
+  provider.setCustomParameters({prompt: 'select_account'});
   auth.signInWithRedirect(provider);
 }
 function signOut(){
-  if(auth) auth.signOut();
+  if(!auth) return;
+  auth.signOut().then(function(){
+    currentUser = null;
+    document.getElementById('authOverlay').style.display = 'flex';
+    document.getElementById('userBar').style.display = 'none';
+    var btn = document.getElementById('btnCalc');
+    if(btn){ btn.disabled=true; btn.style.opacity='.4'; btn.style.cursor='not-allowed'; }
+    showToast('Berhasil logout.','ok');
+  }).catch(function(e){
+    showToast('Logout gagal: '+e.message,'err');
+  });
 }
 
 /* Cloud save/load */
